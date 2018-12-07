@@ -15,6 +15,7 @@ authRouter.post('/signup', (req, res, next) => {
     .then( (user) => {
       req.token = user.generateToken();
       req.user = user;
+      res.set('token', req.token);
       res.cookie('auth', req.token);
       res.send(req.token);
     }).catch(next);
@@ -35,8 +36,10 @@ authRouter.post('/roles', (req, res, next) => {
 authRouter.get('/oauth', async (req, res, next) => {
   try {
     let token = await oauth.authorize(req);
+    res.set('token', token);
     res.cookie('auth', token);
     res.send(token);
+    // res.redirect(process.env.CLIENT_URL);
   }
   catch(e) { next(e); }
 });

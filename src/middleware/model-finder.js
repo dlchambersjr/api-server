@@ -14,7 +14,7 @@ models object:
 
  */
 
-const list = () => Object.keys(models);
+const list = () => Object.keys(models).filter((model) => model !== "model" );
 
 const finder = (req,res,next) => {
   
