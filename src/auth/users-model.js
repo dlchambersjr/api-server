@@ -72,6 +72,7 @@ users.statics.authenticateBasic = function (auth) {
 };
 
 users.statics.authenticateToken = function (token) {
+  console.log(process.env.SECRET);
   let parsedToken = jwt.verify(token, process.env.SECRET || 'changeit');
   let query = { _id: parsedToken.id };
   return this.findOne(query)
