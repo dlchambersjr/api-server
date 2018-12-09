@@ -6,6 +6,9 @@ module.exports = (capability) => {
 
   return (req, res, next) => {
 
+    console.log('INSIDE AUTH()');
+    console.log(req.headers.authorization.split(/\s+/));
+
     try {
 
       let [authType, authString] = req.headers.authorization.split(/\s+/);
@@ -13,7 +16,7 @@ module.exports = (capability) => {
       // BASIC Auth  ... Authorization:Basic ZnJlZDpzYW1wbGU=
       // BEARER Auth ... Authorization:Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI
 
-      switch(authType.toLowerCase()) {
+      switch (authType.toLowerCase()) {
         case 'basic':
           return _authBasic(authString);
         case 'bearer':
@@ -22,27 +25,28 @@ module.exports = (capability) => {
           return _authError();
       }
 
-    } catch(e) {
+    } catch (e) {
+      console.log('CATCH ERROR:', e);
       return _authError();
     }
 
     function _authBasic(authString) {
-      let base64Buffer = Buffer.from(authString,'base64'); // <Buffer 01 02...>
+      let base64Buffer = Buffer.from(authString, 'base64'); // <Buffer 01 02...>
       let bufferString = base64Buffer.toString(); // john:mysecret
-      let [username,password] = bufferString.split(':');  // variables username="john" and password="mysecret"
-      let auth = {username,password};  // {username:"john", password:"mysecret"}
-
+      let [username, password] = bufferString.split(':');  // variables username="john" and password="mysecret"
+      let auth = { username, password };  // {username:"john", password:"mysecret"}
+      console.log('BASIC: ', username, password);
       return User.authenticateBasic(auth)
-        .then( user => _authenticate(user) );
+        .then(user => _authenticate(user));
     }
 
     function _authBearer(authString) {
       return User.authenticateToken(authString)
-        .then( user => _authenticate(user) );
+        .then(user => _authenticate(user));
     }
 
     function _authenticate(user) {
-      if ( user && (!capability || (user.can(capability))) ) {
+      if (user && (!capability || (user.can(capability)))) {
         req.user = user;
         req.token = user.generateToken();
         next();
@@ -53,7 +57,7 @@ module.exports = (capability) => {
     }
 
     function _authError() {
-      next({status: 401, statusMessage: 'Unauthorized', message: 'Invalid User ID/Password'});
+      next({ status: 401, statusMessage: 'Unauthorized', message: 'Invalid User ID/Password' });
     }
 
   };
