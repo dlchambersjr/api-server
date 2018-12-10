@@ -6,9 +6,6 @@ module.exports = (capability) => {
 
   return (req, res, next) => {
 
-    console.log('INSIDE AUTH()');
-    console.log(req.headers.authorization.split(/\s+/));
-
     try {
 
       let [authType, authString] = req.headers.authorization.split(/\s+/);
@@ -26,7 +23,6 @@ module.exports = (capability) => {
       }
 
     } catch (e) {
-      console.log('CATCH ERROR:', e);
       return _authError();
     }
 
